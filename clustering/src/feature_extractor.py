@@ -14,6 +14,7 @@ class FeatureExtractor:
         self.create_model(__model)
         self.filepath = __filepath
         self.total_features = []
+        self.output_fn = "total_features" + "_" + __model
     
     def create_model(self, model):
         if model == "VGG16":
@@ -49,7 +50,7 @@ class FeatureExtractor:
         if len(self.total_features) <= 0:
             raise Exception("No features extracted")
         total_features_save = np.array(self.total_features)
-        np.savetxt("extracted-feature-dataset.txt", total_features_save)
+        np.save(self.output_fn, total_features_save)
 
     def save_image_names(self):
         with open(os.path.join('.', "image-names.txt"), "w") as outputFile:
@@ -67,7 +68,7 @@ if __name__ == "__main__":
     fe = FeatureExtractor(args.m, args.f)
     #fe.extract()
     #fe.save_features()
-    fe.save_image_names()
+    #fe.save_image_names()
     
 
     
