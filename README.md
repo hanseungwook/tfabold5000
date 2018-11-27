@@ -7,7 +7,7 @@
 * Sci-kit
 * Tensorflow
 
-## How to run
+## How to run clustering
 
 ```{shell}
 cd clustering/src/
