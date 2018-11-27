@@ -14,9 +14,8 @@ cd clustering/src/
 python3 feature_extractor.py -m [Model-Name] -f [File-Path-of-Images]
 ```
 
-Model-Name Options
-------------------
-VGG16
-VGG19
-InceptionV3
-ResNet50
+### Model-Name Options
+* VGG16
+* VGG19
+* InceptionV3
+* ResNet50
