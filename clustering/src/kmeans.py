@@ -56,7 +56,7 @@ def find_best_k(features_list_np, show_plot=False):
         os.mkdir(FIGURE_PATH)
 
     # Save plot and Silhouette scores
-    plt.savefig(os.path.join(FIGURE_PATH), 'silhouette_vs_k.png')
+    plt.savefig(os.path.join(FIGURE_PATH, 'silhouette_vs_k.png'))
     outfile = open(os.path.join(FIGURE_PATH, 'results.txt'), 'w+')
     results = zip(k_list, silhouette_scores)
     yaml.dump(results, outfile, default_flow_style=True)
@@ -76,7 +76,7 @@ def find_best_k(features_list_np, show_plot=False):
 # Dimensions = (4916, 11, 11, 512)
 def main(**kwargs):
     filename = kwargs['features_file']
-    filepath = os.path.join(PATH, filename)
+    filepath = filename
     features = np.load(filepath)
     features_list = []
     for i in range(features.shape[0]):
