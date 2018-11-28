@@ -7,7 +7,7 @@ import progressbar as pb
 from progressbar import ProgressBar, ETA, Bar
 import argparse
 import multiprocessing as mp
-import yaml
+# import yaml
 
 # CONSTANTS
 K_START = 300
@@ -34,7 +34,8 @@ def find_best_k(features_list_np, show_plot=False):
         labels = result.labels_
 
         labelfile = open('../labels_{}'.format(k), 'w')
-        yaml.dump(labelfile, labels)
+        # yaml.dump(labelfile, labels)
+        np.savetxt(labelfile, labels)
         labelfile.close()
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
@@ -57,7 +58,7 @@ def find_best_k(features_list_np, show_plot=False):
     plt.savefig(os.path.join(FIGURE_PATH), 'silhouette_vs_k.png')
     outfile = open(os.path.join(FIGURE_PATH, 'results.txt'), 'w+')
     results = zip(k_list, silhouette_scores)
-    yaml.dump(outfile, results)
+    yaml.dump(results, outfile, default_flow_style=True)
 
     if show_plot:
         plt.show()
