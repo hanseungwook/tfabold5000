@@ -3,15 +3,17 @@ from sklearn.cluster import KMeans
 from sklearn import metrics
 import numpy as np
 import matplotlib.pyplot as plt
+import progressbar as pb
 from progressbar import ProgressBar, ETA, Bar
 import argparse
+import multiprocessing as mp
 import yaml
 
 # CONSTANTS
-K_START = 100
-K_END = 2000
-TRIAL_NUM = 20
-PATH = '../vgg_features'
+K_START = 300
+K_END = 1500
+TRIAL_NUM = 5
+PATH = '../..'
 FIGURE_PATH = '../figures'
 
 def find_best_k(features_list_np, show_plot=False):
@@ -20,12 +22,20 @@ def find_best_k(features_list_np, show_plot=False):
     silhouette_scores = []
 
     trial = 1
-    progress = ProgressBar(widgets=['Trial {}'.format(trial), Bar('='), ETA()])
+    progress = ProgressBar(widgets=['Trial {}'.format(trial), pb.Percentage(), ' ',  Bar('='), ' ', ETA()])
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
-        result = KMeans(n_clusters=k, random_state=0).fit(features_list_np)
+        # kmeans = KMeans(n_clusters=k, random_state=0)
+        pool = mp.Pool(processes=mp.cpu_count())
+        print('{} Cores Found'.format(mp.cpu_count()))
+        # result = pool.map(kmeans.fit, features_list_np)
+        result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=1).fit(features_list_np)
         labels = result.labels_
+
+        labelfile = open('../labels_{}'.format(k), 'w')
+        yaml.dump(labelfile, labels)
+        labelfile.close()
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
         # Near 0 scores indicate overlapping clusters
