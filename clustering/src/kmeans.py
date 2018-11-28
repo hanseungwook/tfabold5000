@@ -36,6 +36,7 @@ def find_best_k(features_list_np, show_plot=False):
         labelfile = open('../labels_{}'.format(k), 'w')
         # yaml.dump(labelfile, labels)
         np.savetxt(labelfile, labels)
+
         labelfile.close()
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
