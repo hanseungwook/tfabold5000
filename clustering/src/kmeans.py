@@ -63,9 +63,9 @@ def find_best_k(features_list_np, model, show_plot=False):
     if show_plot:
         plt.show()
 
+    best_k = None
+    best_score = float('-inf')
     for result in results:
-        best_k = None
-        best_score = float('-inf')
         if best_score < result[1]:
             best_score = result[1]
             best_k = result[0]
