@@ -66,9 +66,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     fe = FeatureExtractor(args.m, args.f)
-    #fe.extract()
-    #fe.save_features()
-    #fe.save_image_names()
-    
-
-    
+    fe.extract()
+    fe.save_features()
+    fe.save_image_names()
