@@ -30,7 +30,7 @@ def find_best_k(features_list_np, show_plot=False):
         pool = mp.Pool(processes=mp.cpu_count())
         print('{} Cores Found'.format(mp.cpu_count()))
         # result = pool.map(kmeans.fit, features_list_np)
-        result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=1).fit(features_list_np)
+        result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=0).fit(features_list_np)
         labels = result.labels_
 
         labelfile = open('../labels_{}'.format(k), 'w')
