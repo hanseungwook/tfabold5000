@@ -28,7 +28,6 @@ def find_best_k(features_list_np, model, show_plot=False):
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
-        # kmeans = KMeans(n_clusters=k, random_state=0)
         # pool = mp.Pool(processes=mp.cpu_count())
         # print('{} Cores Found'.format(mp.cpu_count()))
         # result = pool.map(kmeans.fit, features_list_np)
