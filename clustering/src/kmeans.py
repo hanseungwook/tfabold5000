@@ -7,22 +7,21 @@ import progressbar as pb
 from progressbar import ProgressBar, ETA, Bar
 import argparse
 import multiprocessing as mp
-# import yaml
+import yaml
 
 # CONSTANTS
-K_START = 300
-K_END = 1500
+K_START = 100
+K_END = 500
 TRIAL_NUM = 5
-PATH = '../..'
 FIGURE_PATH = '../figures'
 
-def find_best_k(features_list_np, show_plot=False):
-    k_list = np.linspace(K_START, K_END, num=TRIAL_NUM, dtype=np.int64)
+def find_best_k(features_list_np, model, show_plot=False):
+    k_list = np.linspace(K_START, K_END, num=TRIAL_NUM, dtype=np.int32)
 
     silhouette_scores = []
 
     trial = 1
-    progress = ProgressBar(widgets=['Trial {}'.format(trial), pb.Percentage(), ' ',  Bar('='), ' ', ETA()])
+    progress = ProgressBar(widgets=['Trial {}'.format(trial), ' ', pb.Percentage(), ' ',  Bar('='), ' ', ETA()])
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
@@ -30,10 +29,10 @@ def find_best_k(features_list_np, show_plot=False):
         pool = mp.Pool(processes=mp.cpu_count())
         print('{} Cores Found'.format(mp.cpu_count()))
         # result = pool.map(kmeans.fit, features_list_np)
-        result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=1).fit(features_list_np)
+        result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=0).fit(features_list_np[:1000])
         labels = result.labels_
 
-        labelfile = open('../labels_{}'.format(k), 'w')
+        labelfile = open('../{}_labels_{}'.format(model, k), 'w')
         # yaml.dump(labelfile, labels)
         np.savetxt(labelfile, labels)
 
@@ -41,7 +40,7 @@ def find_best_k(features_list_np, show_plot=False):
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
         # Near 0 scores indicate overlapping clusters
-        silhouette_scores.append(metrics.silhouette_score(features_list_np, labels, metric='euclidean'))
+        silhouette_scores.append(metrics.silhouette_score(features_list_np[:1000], labels, metric='euclidean'))
 
     print('Generating Silhouette Score vs. K Plot')
     # Plot Silhouette Score vs. K
@@ -56,20 +55,20 @@ def find_best_k(features_list_np, show_plot=False):
         os.mkdir(FIGURE_PATH)
 
     # Save plot and Silhouette scores
-    plt.savefig(os.path.join(FIGURE_PATH, 'silhouette_vs_k.png'))
-    outfile = open(os.path.join(FIGURE_PATH, 'results.txt'), 'w+')
-    results = zip(k_list, silhouette_scores)
+    plt.savefig(os.path.join(FIGURE_PATH, '{}_silhouette_vs_k.png'.format(model)))
+    outfile = open(os.path.join(FIGURE_PATH, '{}_results.txt'.format(model)), 'w+')
+    results = list(zip(k_list, silhouette_scores))
     yaml.dump(results, outfile, default_flow_style=True)
 
     if show_plot:
         plt.show()
 
-    for i in range(len(results)):
+    for result in results:
         best_k = None
         best_score = float('-inf')
-        if best_k < results[i][1]:
-            best_score = results[i][1]
-            best_k = results[i][0]
+        if best_score < result[1]:
+            best_score = result[1]
+            best_k = result[0]
 
     return best_k
 
@@ -77,6 +76,8 @@ def find_best_k(features_list_np, show_plot=False):
 def main(**kwargs):
     filename = kwargs['features_file']
     filepath = filename
+    idx = filename.find('total_features')
+    model = filename[idx+15:][:-4]
     features = np.load(filepath)
     features_list = []
     for i in range(features.shape[0]):
@@ -86,7 +87,7 @@ def main(**kwargs):
     print('Features loaded.')
     print(features_list_np.shape)
 
-    best_k = find_best_k(features_list_np, kwargs['show_plot'])
+    best_k = find_best_k(features_list_np, model, kwargs['show_plot'])
 
     print('K_START: {}, K_END: {} -> Best K: {}'.format(K_START, K_END, best_k))
 
