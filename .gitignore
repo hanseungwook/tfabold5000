@@ -1,3 +1,4 @@
 total_dataset/*
 .vscode
 *.npy
+bold5000-dataset/
