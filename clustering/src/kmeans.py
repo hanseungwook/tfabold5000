@@ -7,7 +7,7 @@ import progressbar as pb
 from progressbar import ProgressBar, ETA, Bar
 import argparse
 import multiprocessing as mp
-# import yaml
+import yaml
 
 # CONSTANTS
 K_START = 300
