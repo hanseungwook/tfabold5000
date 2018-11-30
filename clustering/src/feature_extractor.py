@@ -14,7 +14,7 @@ class FeatureExtractor:
         self.create_model(__model)
         self.filepath = __filepath
         self.total_features = []
-        self.output_fn = "total_features" + "_" + __model
+        self.output_fn = "scene_features" + "_" + __model
     
     def create_model(self, model):
         if model == "VGG16":
@@ -44,7 +44,7 @@ class FeatureExtractor:
 
             self.total_features.append(feature)
         
-        print(len(self.total_features))
+        print('features length', len(self.total_features))
         
     def save_features(self):
         if len(self.total_features) <= 0:
