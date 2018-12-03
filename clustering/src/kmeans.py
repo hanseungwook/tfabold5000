@@ -17,7 +17,7 @@ TRIAL_NUM = 5
 FIGURE_PATH = '../figures'
 LABEL_PATH = '../labels'
 
-def find_best_k(features_list_np, model, doPCA, show_plot=False):
+def find_best_k(features_list_np, model, show_plot=False):
     k_list = np.linspace(K_START, K_END, num=TRIAL_NUM, dtype=np.int32)
 
     silhouette_scores = []
@@ -29,9 +29,6 @@ def find_best_k(features_list_np, model, doPCA, show_plot=False):
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
-        # pool = mp.Pool(processes=mp.cpu_count())
-        # print('{} Cores Found'.format(mp.cpu_count()))
-        # result = pool.map(kmeans.fit, features_list_np)
         result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=0).fit(features_list_np)
         labels = result.labels_
 
@@ -47,7 +44,7 @@ def find_best_k(features_list_np, model, doPCA, show_plot=False):
 
     print('Generating Silhouette Score vs. K Plot')
     # Plot Silhouette Score vs. K
-    figure_sil = plt.figure()
+    figure_sil = plt.figure(2)
     ax_sil = figure_sil.add_subplot(1, 1, 1)
     ax_sil.set_xlabel('K')
     ax_sil.set_ylabel('Silhouette Score')
@@ -83,7 +80,7 @@ def main(**kwargs):
     filepath = filename
     idx = filename.find('total_features')
     model = filename[idx+15:][:-4]
-    pca_n = kwargs['pca']
+    pca_n = int(kwargs['pca'])
 
     features = np.load(filepath)
     features_list = []
@@ -94,26 +91,23 @@ def main(**kwargs):
     features_list_np = np.array(features_list)
     
     if pca_n > 0:
-        #pca = PCA(n_components=pca_n)
-        pca = PCA()
-        #features_list_np = pca.fit_transform(features_list_np)
-        pca.fit(features_list_np)
+        pca = PCA(n_components=pca_n)
+        features_list_np = pca.fit_transform(features_list_np)
 
         #Plotting the Cumulative Summation of the Explained Variance
-        plt.figure()
+        plt.figure(1)
         plt.plot(np.cumsum(pca.explained_variance_ratio_))
         plt.xlabel('Number of Components')
         plt.ylabel('Variance (%)') #for each component
         plt.title('Pulsar Dataset Explained Variance')
-        plt.show()
-
+        plt.savefig(os.path.join(FIGURE_PATH, 'pca_exp_ratio.png'))
+    
         print('PCA completed with %d components.' % (pca_n))
-        return
 
     print('Features loaded.')
     # print(features_list_np.shape)
 
-    best_k = find_best_k(features_list_np, model, doPCA, kwargs['show_plot'])
+    best_k = find_best_k(features_list_np, model, kwargs['show_plot'])
 
     print('K_START: {}, K_END: {} -> Best K: {}'.format(K_START, K_END, best_k))
 
