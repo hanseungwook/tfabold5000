@@ -11,14 +11,14 @@ import multiprocessing as mp
 import yaml
 
 # CONSTANTS
-K_START = 100
-K_END = 500
-TRIAL_NUM = 5
+K_START = 2
+K_END = 10
+TRIAL_NUM = 9
 IMAGE_PATH = '../../bold5000-dataset/scene'
 FIGURE_PATH = '../figures'
 LABEL_PATH = '../labels'
 
-def find_best_k(images, features_list_np, show_plot=False):
+def find_best_k(images, features_list_np, color_k, show_plot=False):
     k_list = np.linspace(K_START, K_END, num=TRIAL_NUM, dtype=np.int32)
 
     silhouette_scores = []
@@ -26,7 +26,7 @@ def find_best_k(images, features_list_np, show_plot=False):
     print('{} cores found.'.format(mp.cpu_count()))
 
     trial = 1
-    progress = ProgressBar(widgets=['Trial {}'.format(trial), ' ', pb.Percentage(), ' ',  Bar('='), ' ', Timer()]).start()
+    progress = ProgressBar(widgets=[pb.Percentage(), ' ',  Bar('='), ' ', Timer()]).start()
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
@@ -34,12 +34,12 @@ def find_best_k(images, features_list_np, show_plot=False):
         # print('{} Cores Found'.format(mp.cpu_count()))
         # result = pool.map(kmeans.fit, features_list_np)
         result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=0).fit(features_list_np)
-        labels = result.labels_
+        labels = list(map(int, result.labels_))
         image_label_pairs = list(zip(images, labels))
 
         if not os.path.isdir(LABEL_PATH):
             os.mkdir(LABEL_PATH)
-        labelfile = open(os.path.join(LABEL_PATH,'labels_{}.yml'.format(k)), 'w')
+        labelfile = open(os.path.join(LABEL_PATH,'ck{}_labels_{}.yml'.format(color_k, k)), 'w')
         #np.savetxt(labelfile, image_label_pairs)
         yaml.dump(image_label_pairs, labelfile, default_flow_style=False)
         labelfile.close()
@@ -61,8 +61,8 @@ def find_best_k(images, features_list_np, show_plot=False):
         os.mkdir(FIGURE_PATH)
 
     # Save plot and Silhouette scores
-    plt.savefig(os.path.join(FIGURE_PATH, 'silhouette_vs_k.png'))
-    outfile = open(os.path.join(FIGURE_PATH, 'silhouette_vs_k.txt'), 'w+')
+    plt.savefig(os.path.join(FIGURE_PATH, 'ck{}_silhouette_vs_k.png'.format(color_k)))
+    outfile = open(os.path.join(FIGURE_PATH, 'ck{}_silhouette_vs_k.txt'.format(color_k)), 'w+')
     results = list(zip(k_list, silhouette_scores))
     #yaml.dump(results, outfile, default_flow_style=True)
     np.savetxt(outfile, results)
@@ -80,6 +80,9 @@ def find_best_k(images, features_list_np, show_plot=False):
 
     return best_k
 
+def sample_from_cluster(labelfile):
+    pass
+
 # Dimensions = (4916, 11, 11, 512)
 # Dominant color dimensions = (1000, 5, 3)
 def main(**kwargs):
@@ -87,6 +90,9 @@ def main(**kwargs):
     filepath = kwargs['features_file']
     #idx = filename.find('total_features')
     #model = filename[idx+15:][:-4]
+    idx1 = filepath.find('images_color')
+    idx2 = filepath.find('.npy')
+    color_k = filepath[idx1+12:idx2]
     images = os.listdir(imagepath)
     features = np.load(filepath)
     features_list = []
@@ -97,7 +103,7 @@ def main(**kwargs):
     print('Features loaded.')
     # print(features_list_np.shape)
 
-    best_k = find_best_k(images, features_list_np, kwargs['show_plot'])
+    best_k = find_best_k(images, features_list_np, color_k, kwargs['show_plot'])
 
     print('K_START: {}, K_END: {} -> Best K: {}'.format(K_START, K_END, best_k))
 
