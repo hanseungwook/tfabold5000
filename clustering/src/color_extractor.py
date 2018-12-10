@@ -9,8 +9,10 @@ import os
 from os import listdir
 from os.path import isfile, join
 import argparse
+import math
 
 criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+sparse_shape = (8, 8, 8)
 
 class ColorExtractor(object):
     def __init__(self, k = 5, img_dir = None):
@@ -41,7 +43,9 @@ class ColorExtractor(object):
             if q == None:
                 clt = KMeans(n_clusters = self.k, n_jobs=-1)
                 clt.fit(img)
-                self.img_colors.append(clt.cluster_centers_)
+                
+                #self.img_colors.append(clt.cluster_centers_)
+                self.img_colors.append(create_sparse_mat_rep(clt.cluster_centers_))
             else:
                 Z = img.reshape((-1,3))
                 Z = np.float32(Z)
@@ -58,6 +62,15 @@ class ColorExtractor(object):
             #print(clt.cluster_centers_)
             counter += 1
             print('Progress: %f' % (round(counter / n, 3) * 100))
+
+    def create_sparse_mat_rep(self, centers):
+        sparse_mat = np.zeros(sparse_shape)
+
+        for center in centers:
+            r, g, b = math.floor(center / 8.0)
+            sparse_mat[r][g][b] = 1.0
+            
+        return sparse_mat
 
     def centroid_histogram(self, clt):
         # grab the number of different clusters and create a histogram
@@ -90,7 +103,7 @@ def main():
 
     ce = ColorExtractor(k = int(args.k), img_dir = args.img_dir)
     ce.load_images()
-    clt = ce.do_KMeans(q=1)
+    ce.do_KMeans(q=1)
     ce.save(args.out_file)
     #hist = ce.centroid_histogram(clt)
     #bar = ce.plot_colors(hist,clt.cluster_centers_)
