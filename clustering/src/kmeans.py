@@ -1,6 +1,7 @@
 import os
 from sklearn.cluster import KMeans
 from sklearn import metrics
+from sklearn.decomposition import PCA
 import numpy as np
 import matplotlib.pyplot as plt
 import progressbar as pb
@@ -30,9 +31,6 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
-        # pool = mp.Pool(processes=mp.cpu_count())
-        # print('{} Cores Found'.format(mp.cpu_count()))
-        # result = pool.map(kmeans.fit, features_list_np)
         result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=0).fit(features_list_np)
         labels = list(map(int, result.labels_))
         image_label_pairs = list(zip(images, labels))
@@ -50,7 +48,7 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
 
     print('Generating Silhouette Score vs. K Plot')
     # Plot Silhouette Score vs. K
-    figure_sil = plt.figure()
+    figure_sil = plt.figure(2)
     ax_sil = figure_sil.add_subplot(1, 1, 1)
     ax_sil.set_xlabel('K')
     ax_sil.set_ylabel('Silhouette Score')
@@ -94,12 +92,29 @@ def main(**kwargs):
     idx2 = filepath.find('.npy')
     color_k = filepath[idx1+12:idx2]
     images = os.listdir(imagepath)
+    
     features = np.load(filepath)
     features_list = []
+
     for i in range(features.shape[0]):
         features_list.append(features[i].flatten())
 
     features_list_np = np.array(features_list)
+    
+    if pca_n > 0:
+        pca = PCA(n_components=pca_n)
+        features_list_np = pca.fit_transform(features_list_np)
+
+        #Plotting the Cumulative Summation of the Explained Variance
+        plt.figure(1)
+        plt.plot(np.cumsum(pca.explained_variance_ratio_))
+        plt.xlabel('Number of Components')
+        plt.ylabel('Variance (%)') #for each component
+        plt.title('Pulsar Dataset Explained Variance')
+        plt.savefig(os.path.join(FIGURE_PATH, 'pca_exp_ratio.png'))
+    
+        print('PCA completed with %d components.' % (pca_n))
+
     print('Features loaded.')
     # print(features_list_np.shape)
 
@@ -112,5 +127,6 @@ if __name__ == '__main__':
     parser.add_argument('image_path', help='Path to image data')
     parser.add_argument('features_file', help='File containing features')
     parser.add_argument('--show_plot', help='Flag to enable showing plot', action='store_true', default=False)
+    parser.add_argument('--pca', help='Flag for setting pca on or off', default=0)
     args = parser.parse_args()
     main(**vars(args))
