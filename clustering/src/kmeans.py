@@ -35,8 +35,9 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
         labels = list(map(int, result.labels_))
         image_label_pairs = list(zip(images, labels))
 
-        if not os.path.isdir(LABEL_PATH):
+        if not os.path.exists(LABEL_PATH):
             os.mkdir(LABEL_PATH)
+        print(os.path.join(LABEL_PATH, ''))
         labelfile = open(os.path.join(LABEL_PATH,'ck{}_labels_{}.yml'.format(color_k, k)), 'w')
         #np.savetxt(labelfile, image_label_pairs)
         yaml.dump(image_label_pairs, labelfile, default_flow_style=False)
@@ -55,7 +56,7 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
     ax_sil.set_title('Silhouette Score vs. K')
     ax_sil.scatter(k_list, silhouette_scores)
 
-    if not os.path.isdir(FIGURE_PATH):
+    if not os.path.exists(FIGURE_PATH):
         os.mkdir(FIGURE_PATH)
 
     # Save plot and Silhouette scores
@@ -88,9 +89,11 @@ def main(**kwargs):
     filepath = kwargs['features_file']
     #idx = filename.find('total_features')
     #model = filename[idx+15:][:-4]
-    idx1 = filepath.find('images_color')
-    idx2 = filepath.find('.npy')
-    color_k = filepath[idx1+12:idx2]
+    pca_n = int(kwargs['pca'])
+    color_k = filepath.split('_')[-1][0]
+    # idx1 = filepath.find('images_color')
+    # idx2 = filepath.find('.npy')
+    # color_k = filepath[idx1+12:idx2]
     images = os.listdir(imagepath)
     
     features = np.load(filepath)
@@ -117,6 +120,8 @@ def main(**kwargs):
 
     print('Features loaded.')
     # print(features_list_np.shape)
+
+    print(color_k)
 
     best_k = find_best_k(images, features_list_np, color_k, kwargs['show_plot'])
 
