@@ -31,11 +31,16 @@ class ColorExtractor(object):
             self.img.append(img)
 
     def do_KMeans(self):
+        counter = 0
+        n = len(self.img)
+
         for img in self.img:
-            clt = KMeans(n_clusters = self.k)
+            clt = KMeans(n_clusters = self.k, n_jobs=-1)
             clt.fit(img)
-            print(clt.cluster_centers_)
+            #print(clt.cluster_centers_)
             self.img_colors.append(clt.cluster_centers_)
+            counter += 1
+            print('Progress: %f' % (round(counter / n, 3) * 100))
 
     def centroid_histogram(self, clt):
         # grab the number of different clusters and create a histogram
@@ -56,7 +61,7 @@ class ColorExtractor(object):
         return bar
 
     def save(self):
-        np.save('images_colors.npy', self.img_colors)
+        np.save('../features/images_colors.npy', self.img_colors)
         print('Saved to images.colors')
         
 def main():
@@ -65,7 +70,7 @@ def main():
     parser.add_argument("img_dir",help="Path to image files")
     args = parser.parse_args()
 
-    ce = ColorExtractor(k = args.k, img_dir = args.img_dir)
+    ce = ColorExtractor(k = int(args.k), img_dir = args.img_dir)
     ce.load_images()
     clt = ce.do_KMeans()
     #hist = ce.centroid_histogram(clt)
