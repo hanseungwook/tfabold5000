@@ -9,16 +9,17 @@ import os
 from os import listdir
 from os.path import isfile, join
 import argparse
-import math
 
 criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-sparse_shape = (8, 8, 8)
+SPARSE_SHAPE = (4, 4, 4)
+RGB_MAX = 256
 
 class ColorExtractor(object):
-    def __init__(self, k = 5, img_dir = None):
+    def __init__(self, k = 5, img_dir = None, q = None):
        self.k = k
        self.img_dir = img_dir
        self.img_colors = []
+       self.q = q
 
     def load_images(self, n = None):
         self.img = []
@@ -30,22 +31,26 @@ class ColorExtractor(object):
 
         for f in onlyfiles:
             img = cv.imread(f)
-            #img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-            #img = img.reshape((img.shape[0] * img.shape[1], 3))
-            #img = np.float32(img)
+
+            # If not quantization, then flatten the image into 1-dimensional array
+            if not self.q:
+                img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                img = img.reshape((img.shape[0] * img.shape[1], 3))
+                img = np.float32(img)
+
             self.img.append(img)
 
-    def do_KMeans(self, q = None):
+    def do_KMeans(self):
         counter = 0
         n = len(self.img)
         
         for img in self.img:
-            if q == None:
+            if self.q == None:
                 clt = KMeans(n_clusters = self.k, n_jobs=-1)
                 clt.fit(img)
                 
                 #self.img_colors.append(clt.cluster_centers_)
-                self.img_colors.append(create_sparse_mat_rep(clt.cluster_centers_))
+                self.img_colors.append(self.create_sparse_mat_rep(clt.cluster_centers_))
             else:
                 Z = img.reshape((-1,3))
                 Z = np.float32(Z)
@@ -64,11 +69,13 @@ class ColorExtractor(object):
             print('Progress: %f' % (round(counter / n, 3) * 100))
 
     def create_sparse_mat_rep(self, centers):
-        sparse_mat = np.zeros(sparse_shape)
+        sparse_mat = np.zeros(SPARSE_SHAPE)
 
         for center in centers:
-            r, g, b = math.floor(center / 8.0)
-            sparse_mat[r][g][b] = 1.0
+            center = np.floor(center / (RGB_MAX/SPARSE_SHAPE[0]))
+            r, g, b = int(center[0]), int(center[1]), int(center[2])
+
+            sparse_mat[r][g][b] += 1.0
             
         return sparse_mat
 
@@ -103,7 +110,7 @@ def main():
 
     ce = ColorExtractor(k = int(args.k), img_dir = args.img_dir)
     ce.load_images()
-    ce.do_KMeans(q=1)
+    ce.do_KMeans()
     ce.save(args.out_file)
     #hist = ce.centroid_histogram(clt)
     #bar = ce.plot_colors(hist,clt.cluster_centers_)
