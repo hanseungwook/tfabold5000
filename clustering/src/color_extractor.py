@@ -10,6 +10,8 @@ from os import listdir
 from os.path import isfile, join
 import argparse
 
+criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+
 class ColorExtractor(object):
     def __init__(self, k = 5, img_dir = None):
        self.k = k
@@ -26,19 +28,34 @@ class ColorExtractor(object):
 
         for f in onlyfiles:
             img = cv.imread(f)
-            img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-            img = img.reshape((img.shape[0] * img.shape[1], 3))
+            #img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+            #img = img.reshape((img.shape[0] * img.shape[1], 3))
+            #img = np.float32(img)
             self.img.append(img)
 
-    def do_KMeans(self):
+    def do_KMeans(self, q = None):
         counter = 0
         n = len(self.img)
-
+        
         for img in self.img:
-            clt = KMeans(n_clusters = self.k, n_jobs=-1)
-            clt.fit(img)
+            if q == None:
+                clt = KMeans(n_clusters = self.k, n_jobs=-1)
+                clt.fit(img)
+                self.img_colors.append(clt.cluster_centers_)
+            else:
+                Z = img.reshape((-1,3))
+                Z = np.float32(Z)
+
+                ret,label,center=cv.kmeans(Z,self.k,None,criteria,10,cv.KMEANS_RANDOM_CENTERS)
+
+                center = np.uint8(center)
+                res = center[label.flatten()]
+                res2 = res.reshape((img.shape))
+                res2 = cv.resize(res2,(100,100))
+                self.img_colors.append(res2)
+
+
             #print(clt.cluster_centers_)
-            self.img_colors.append(clt.cluster_centers_)
             counter += 1
             print('Progress: %f' % (round(counter / n, 3) * 100))
 
@@ -60,28 +77,48 @@ class ColorExtractor(object):
             startX=endX
         return bar
 
-    def save(self):
-        np.save('../features/images_colors.npy', self.img_colors)
+    def save(self, out_file):
+        np.save('../features/' + out_file, self.img_colors)
         print('Saved to images.colors')
         
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("k",help="Number of clusters")
     parser.add_argument("img_dir",help="Path to image files")
+    parser.add_argument("out_file",help="Output filename")
     args = parser.parse_args()
 
     ce = ColorExtractor(k = int(args.k), img_dir = args.img_dir)
     ce.load_images()
-    ce.do_KMeans()
-    ce.save()
-
+    clt = ce.do_KMeans(q=1)
+    ce.save(args.out_file)
     #hist = ce.centroid_histogram(clt)
     #bar = ce.plot_colors(hist,clt.cluster_centers_)
     #print(clt.cluster_centers_)
+    
+
     #plt.figure()
     #plt.axis("off")
     #plt.imshow(bar)
     #plt.show()
+    '''
+    img = cv.imread('/Users/hyundonglee/Desktop/CNB/tfabold5000/clustering/images/bold5000-dataset/scene/exerciseequipment3.jpg')
+    Z = img.reshape((-1,3))
+    Z = np.float32(Z)
+
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    K = 5
+    ret,label,center=cv.kmeans(Z,K,None,criteria,10,cv.KMEANS_RANDOM_CENTERS)
+
+    center = np.uint8(center)
+    res = center[label.flatten()]
+    res2 = res.reshape((img.shape))
+    res2 = cv.resize(res2,(100,100))
+
+    cv.imshow('res2',res2)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    '''
 
 if __name__ == '__main__':
     main()
