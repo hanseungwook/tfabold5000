@@ -1,4 +1,5 @@
 from sklearn.cluster import KMeans
+from sklearn import metrics
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
@@ -68,6 +69,31 @@ class ColorExtractor(object):
             counter += 1
             print('Progress: %f' % (round(counter / n, 3) * 100))
 
+    def find_best_KMeans(self, start, end, by):
+        k_list = np.arange(start=start, stop=end, step=by)
+        best_s = np.empty((len(k_list),))
+        
+        outer_counter = 0
+        for k in k_list:
+            s_score = np.empty((len(self.img,)))
+            inner_counter = 0
+
+            for img in self.img:
+                clt = KMeans(n_clusters = self.k, n_jobs=-1)
+                clt.fit(img)
+                
+                s_score[inner_counter] = metrics.silhouette_score(img, clt.labels_, metric='euclidean')
+                inner_counter += 1
+            
+            best_s[outer_counter] = np.mean(s_score)
+            
+            outer_counter += 1
+
+            print('Progress: %f' % (round(outer_counter / len(k_list), 3) * 100))
+        
+        return k_list[np.argmax(best_s)]
+            
+
     def create_sparse_mat_rep(self, centers):
         sparse_mat = np.zeros(SPARSE_SHAPE)
 
@@ -110,8 +136,9 @@ def main():
 
     ce = ColorExtractor(k = int(args.k), img_dir = args.img_dir)
     ce.load_images()
-    ce.do_KMeans()
-    ce.save(args.out_file)
+    ce.find_best_KMeans(1, 10, 1)
+    # ce.do_KMeans(q=1)
+    # ce.save(args.out_file)
     #hist = ce.centroid_histogram(clt)
     #bar = ce.plot_colors(hist,clt.cluster_centers_)
     #print(clt.cluster_centers_)
