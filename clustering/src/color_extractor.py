@@ -60,14 +60,15 @@ class ColorExtractor(object):
             startX=endX
         return bar
 
-    def save(self):
-        np.save('../features/images_colors.npy', self.img_colors)
+    def save(self, out_file):
+        np.save('../features/' + out_file, self.img_colors)
         print('Saved to images.colors')
         
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("k",help="Number of clusters")
     parser.add_argument("img_dir",help="Path to image files")
+    parser.add_argument("out_file",help="Output filename")
     args = parser.parse_args()
 
     ce = ColorExtractor(k = int(args.k), img_dir = args.img_dir)
@@ -76,7 +77,7 @@ def main():
     #hist = ce.centroid_histogram(clt)
     #bar = ce.plot_colors(hist,clt.cluster_centers_)
     #print(clt.cluster_centers_)
-    ce.save()
+    ce.save(args.out_file)
 
     #plt.figure()
     #plt.axis("off")
