@@ -72,12 +72,12 @@ def main():
 
     ce = ColorExtractor(k = int(args.k), img_dir = args.img_dir)
     ce.load_images()
-    clt = ce.do_KMeans()
+    ce.do_KMeans()
+    ce.save()
+
     #hist = ce.centroid_histogram(clt)
     #bar = ce.plot_colors(hist,clt.cluster_centers_)
     #print(clt.cluster_centers_)
-    ce.save()
-
     #plt.figure()
     #plt.axis("off")
     #plt.imshow(bar)
