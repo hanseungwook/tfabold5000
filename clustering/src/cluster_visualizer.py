@@ -11,10 +11,11 @@ import yaml
 import os
 
 class ClusterVisualizer:
-    def __init__(self, img_path, label_path):
+    def __init__(self, img_path, label_path, out_file):
         self.img_path = img_path
         self.label_path = label_path
         self.labels = None
+        self.out_file = out_file
 
     # Load image name and label from labels file
     # Returns dictionary (key = image name, value = label)
@@ -52,7 +53,8 @@ class ClusterVisualizer:
         img_df = dict_2_df(img_pca_dict, self.labels, "Data", "Label")
 
         ax = sns.scatterplot(x='pca_1', y='pca_2', hue= img_df['Label'], data=img_df)
-        plt.show()
+        #plt.show()
+        plt.savefig(self.out_file)
         
     
 def dict_2_df(dict1, dict2, col1, col2):
@@ -80,11 +82,14 @@ def main():
     parser = argparse.ArgumentParser(description="Visualize clusters in iamges dir with respective cluster")
     parser.add_argument('img_path', help="Directory path for images")
     parser.add_argument('label_path', help="Labels for images")
+    parser.add_argument('out_file', help="Output file for plot")
     args = parser.parse_args()
 
-    # cv = ClusterVisualizer(args.img_path, args.label_path)
-    # print(cv.load_labels())
-    test2()
+    cv = ClusterVisualizer(args.img_path, args.label_path, args.out_file)
+    cv.load_labels()
+    img_pca_dict = cv.run_pca()
+    cv.plot(img_pca_dict)
+    #test2()
 
 
 if __name__ == "__main__":
