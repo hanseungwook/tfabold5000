@@ -37,8 +37,20 @@ class ClusterVisualizer:
         for img in os.listdir(self.img_path):
             img_file = os.path.join(self.img_path, img)
             img_data = imageio.imread(img_file)
-            img_list.append(img_data)
+            img_list.append(img_data.flatten())
             img_name_list.append(img)
+       
+        size = None
+        counter = 0
+        for img in img_list:
+            if not size:
+                size = len(img)
+            else:
+                if size != len(img):
+                    print(img_name_list[counter])
+                    raise Exception("error")
+
+            counter += 1
 
         print('Running PCA')
         # Run PCA
@@ -54,12 +66,12 @@ class ClusterVisualizer:
 
         ax = sns.scatterplot(x='pca_1', y='pca_2', hue= img_df['Label'], data=img_df)
         #plt.show()
-        plt.savefig(self.out_file)
+        plt.savefig(os.path.join('../figures/', self.out_file))
         
     
 def dict_2_df(dict1, dict2, col1, col2):
     df = pd.DataFrame({col1: pd.Series(dict1), col2: pd.Series(dict2)})
-    df[['pca_1', 'pca_2']] = df['col1'].apply(pd.Series)
+    df[['pca_1', 'pca_2']] = df[col1].apply(pd.Series)
 
     return df
 
