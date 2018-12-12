@@ -137,6 +137,18 @@ def main():
     
     #test2()
 
+# Loads images and returns flattened images in a list
+def load_img(img_path):
+    img_list = []
+
+    # Read all images
+    for img in os.listdir(img_path):
+        img_file = os.path.join(img_path, img)
+        img_data = imageio.imread(img_file)
+        img_list.append(img_data.flatten())
+
+    return img_list
+    
 
 if __name__ == "__main__":
     main()
