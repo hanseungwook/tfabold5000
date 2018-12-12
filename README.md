@@ -6,7 +6,9 @@
 * Numpy
 * Sci-kit
 * Tensorflow
-
+* Pandas
+* Seaborn
+* Matplotlib
 
 
 
@@ -31,3 +33,11 @@ python3 kmeans.py [File-Path-of-Features]
 ```
 
 The above program will save the figures to `../figures` and the labels/results to `../`.
+
+## How to run cluster visualizer
+```{shell}
+cd clustering/src/
+python3 cluster_visualizer.py [img_path] [label_path] [output-filename]
+```
+
+The visualizer above will run PCA on the original dataset with n_components = 2 to reduce the dimensionality of the dataset to 2 and save the visualized clusters to `../figures/output-filename`
