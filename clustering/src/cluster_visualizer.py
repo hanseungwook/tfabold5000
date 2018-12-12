@@ -3,7 +3,6 @@
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from ggplot import *
 import imageio
 import pandas as pd
 import seaborn as sns
@@ -123,11 +122,19 @@ def main():
     parser.add_argument('out_file', help="Output file for plot")
     args = parser.parse_args()
 
+    # Visualizing original data with PCA
     #cv = ClusterVisualizer(args.img_path, args.label_path, args.out_file)
+    #cv.load_labels()
+    #img_pca_dict = cv.run_pca()
+    #cv.plot(img_pca_dict)
+
     cv = ClusterVisualizer(args.feature_path, args.label_path, args.out_file)
     cv.load_labels()
-    img_pca_dict = cv.run_pca()
-    cv.plot(img_pca_dict)
+    img_pca = cv.run_pca(pca_n=50)
+    img_tsne_dict = cv.run_tsne(img_pca)
+    cv.plot(img_tsne_dict)
+    
+    
     #test2()
 
 
