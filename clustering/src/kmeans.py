@@ -19,7 +19,7 @@ IMAGE_PATH = '../../bold5000-dataset/scene'
 FIGURE_PATH = '../figures'
 LABEL_PATH = '../labels'
 
-def find_best_k(images, features_list_np, color_k, show_plot=False):
+def find_best_k(images, features_list_np, color_k='', show_plot=False):
     k_list = np.linspace(K_START, K_END, num=TRIAL_NUM, dtype=np.int32)
 
     silhouette_scores = []
@@ -78,9 +78,6 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
             best_k = result[0]
 
     return best_k
-
-def sample_from_cluster(labelfile):
-    pass
 
 # Dimensions = (4916, 11, 11, 512)
 # Dominant color dimensions = (1000, 5, 3)
