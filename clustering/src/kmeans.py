@@ -10,6 +10,7 @@ from progressbar import ProgressBar, ETA, Bar, Timer
 import argparse
 import multiprocessing as mp
 import yaml
+from cluster_visualizer import load_img
 
 # CONSTANTS
 K_START = 2
@@ -79,25 +80,27 @@ def find_best_k(images, features_list_np, color_k='', show_plot=False):
 
     return best_k
 
+def load_feature(filepath):
+    return np.load(filepath)
+
 # Dimensions = (4916, 11, 11, 512)
 # Dominant color dimensions = (1000, 5, 3)
 def main(**kwargs):
     imagepath = kwargs['image_path']
     filepath = kwargs['features_file']
-    #idx = filename.find('total_features')
-    #model = filename[idx+15:][:-4]
     pca_n = int(kwargs['pca'])
     color_k = filepath.split('_')[-1][0]
-    # idx1 = filepath.find('images_color')
-    # idx2 = filepath.find('.npy')
-    # color_k = filepath[idx1+12:idx2]
-    images = os.listdir(imagepath)
-    
-    features = np.load(filepath)
-    features_list = []
 
-    for i in range(features.shape[0]):
-        features_list.append(features[i].flatten())
+    images = os.listdir(imagepath)
+
+    features_list = []
+    if filepath: 
+        features = load_feature(filepath)
+
+        for i in range(features.shape[0]):
+            features_list.append(features[i].flatten())
+    else:
+        features_list = load_img(imagepath)
 
     features_list_np = np.array(features_list)
     
@@ -127,7 +130,7 @@ def main(**kwargs):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Takes in VGG-extracted features as input')
     parser.add_argument('image_path', help='Path to image data')
-    parser.add_argument('features_file', help='File containing features')
+    parser.add_argument('features_file', help='File containing features', default=None)
     parser.add_argument('--show_plot', help='Flag to enable showing plot', action='store_true', default=False)
     parser.add_argument('--pca', help='Flag for setting pca on or off', default=0)
     args = parser.parse_args()
