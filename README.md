@@ -18,7 +18,9 @@
 ```{shell}
 cd clustering/src/
 python3 feature_extractor.py -m [Model-Name] -f [File-Path-of-Images]
+python3 color_stats_extractor.py [img-path] [output-path]
 ```
+
 
 ### Model-Name Options
 * VGG16
