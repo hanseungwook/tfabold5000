@@ -53,7 +53,7 @@ The above command will run kmeans clustering algorithm on the images in the spec
 
 ```{shell}
 cd clustering/src/
-python3 cluster_visualizer.py [img_path] [label_path] [output-filename]
+python3 cluster_visualizer.py [feature_path] [label_path] [output-filename]
 ```
 
 The visualizer above will run PCA on the original dataset with n_components = 2 to reduce the dimensionality of the dataset to 2 and save the visualized clusters to `../figures/[output-filename]`
