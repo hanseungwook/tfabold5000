@@ -12,13 +12,12 @@
 
 
 
-## How to run feature extraction
+## How to run feature extraction using pre-trained CNN
 
 
 ```{shell}
 cd clustering/src/
 python3 feature_extractor.py -m [Model-Name] -f [File-Path-of-Images]
-python3 color_stats_extractor.py [img-path] [output-path]
 ```
 
 
@@ -27,6 +26,12 @@ python3 color_stats_extractor.py [img-path] [output-path]
 * VGG19
 * InceptionV3
 * ResNet50
+
+## How to run color extraction
+### Feature = (Mean, SD, Skew)
+```{shell}
+python3 color_stats_extractor.py [img-path] [output-path]
+```
 
 ## How to run kmeans clustering
 To run K-Means on the features:
