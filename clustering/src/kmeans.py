@@ -16,8 +16,8 @@ from cluster_visualizer import load_img
 
 # CONSTANTS
 K_START = 2
-K_END = 20
-TRIAL_NUM = 10
+K_END = 10
+TRIAL_NUM = 9
 IMAGE_PATH = '../../bold5000-dataset/scene'
 FIGURE_PATH = '../figures'
 LABEL_PATH = '../labels'
