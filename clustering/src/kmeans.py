@@ -10,6 +10,8 @@ from progressbar import ProgressBar, ETA, Bar, Timer
 import argparse
 import multiprocessing as mp
 import yaml
+import json
+from collections import defaultdict
 from cluster_visualizer import load_img
 
 # CONSTANTS
@@ -20,7 +22,7 @@ IMAGE_PATH = '../../bold5000-dataset/scene'
 FIGURE_PATH = '../figures'
 LABEL_PATH = '../labels'
 
-def find_best_k(images, features_list_np, color_k, show_plot=False):
+def find_best_k(images, features_list_np, color_k='', show_plot=False):
     k_list = np.linspace(K_START, K_END, num=TRIAL_NUM, dtype=np.int32)
 
     silhouette_scores = []
@@ -39,11 +41,22 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
 
         if not os.path.exists(LABEL_PATH):
             os.mkdir(LABEL_PATH)
-        print(os.path.join(LABEL_PATH, ''))
+        '''
         labelfile = open(os.path.join(LABEL_PATH,'ck{}_labels_{}.yml'.format(color_k, k)), 'w')
-        #np.savetxt(labelfile, image_label_pairs)
+        # np.savetxt(labelfile, image_label_pairs)
         yaml.dump(image_label_pairs, labelfile, default_flow_style=False)
         labelfile.close()
+        '''
+        # Generate dict: cluster_label -> [images]
+        cluster_dict = defaultdict(list)
+        for pair in image_label_pairs:
+            image = pair[0]
+            label = pair[1]
+            cluster_dict[label].append(image)
+        # cluster_dict['n_clusters'] = k
+        
+        cluster_json = open(os.path.join(LABEL_PATH, 'cluster_to_images_{}.json'.format(k)), 'w')
+        json.dump(cluster_dict, cluster_json)
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
         # Near 0 scores indicate overlapping clusters
@@ -81,12 +94,8 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
 
     return best_k
 
-def sample_from_cluster(labelfile):
-    pass
-
 def load_feature(filepath):
     return np.load(filepath)
-    
 
 # Dimensions = (4916, 11, 11, 512)
 # Dominant color dimensions = (1000, 5, 3)
@@ -126,7 +135,7 @@ def main(**kwargs):
     print('Features loaded.')
     # print(features_list_np.shape)
 
-    print(color_k)
+    # print(color_k)
 
     best_k = find_best_k(images, features_list_np, color_k, kwargs['show_plot'])
 

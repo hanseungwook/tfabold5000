@@ -64,6 +64,9 @@ class ClusterVisualizer:
             counter += 1
         """
 
+        if len(img_list[0]) < pca_n:
+            print('Skipping PCA b/c # of features < pca_n')
+            return img_list
         print('Running PCA')
         # Run PCA
         pca = PCA(n_components=pca_n)    
@@ -130,6 +133,7 @@ def main():
 
     cv = ClusterVisualizer(args.feature_path, args.label_path, args.out_file)
     cv.load_labels()
+
     img_pca = cv.run_pca(pca_n=50)
     img_tsne_dict = cv.run_tsne(img_pca)
     cv.plot(img_tsne_dict)
