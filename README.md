@@ -37,7 +37,7 @@ python3 color_stats_extractor.py [img-path] [output-path]
 To run K-Means on the features:
 ```{shell}
 cd clustering/src/
-python3 kmeans.py [Image-Path] [File-Path-of-Features] [--pca=pca_n / optional] [--show_plot / optional]
+python3 kmeans.py [Image-Path] [File-Path-of-Features] [Prefix-of-Figure/Label-Names] [--pca=pca_n / optional] [--show_plot / optional]
 ```
 
 The above program runs kmeans clustering algorithm on the features of the images and will save the figures to `../figures` and the labels/results to `../`.
