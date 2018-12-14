@@ -41,12 +41,12 @@ def find_best_k(images, features_list_np, color_k='', show_plot=False):
 
         if not os.path.exists(LABEL_PATH):
             os.mkdir(LABEL_PATH)
-        '''
+        
         labelfile = open(os.path.join(LABEL_PATH,'ck{}_labels_{}.yml'.format(color_k, k)), 'w')
         # np.savetxt(labelfile, image_label_pairs)
         yaml.dump(image_label_pairs, labelfile, default_flow_style=False)
         labelfile.close()
-        '''
+        
         # Generate dict: cluster_label -> [images]
         cluster_dict = defaultdict(list)
         for pair in image_label_pairs:
