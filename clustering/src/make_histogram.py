@@ -29,7 +29,9 @@ class ColorHistogram(object):
 
         clahe = cv.createCLAHE(clipLimit=40., tileGridSize=(16,16))
         for f in onlyfiles:
+            print(f)
             img = cv.imread(f)
+            print(img)
             #img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
             #img = img.reshape((img.shape[0] * img.shape[1], 3))
             #img = np.float32(img)
@@ -83,8 +85,9 @@ def main():
 
     ch = ColorHistogram(img_dir = args.img_dir)
     ch.load_images()
-    ch.histogram()
-    ch.save(args.out_file)
+    ch.save_images(args.out_file)
+    #ch.histogram()
+    #ch.save(args.out_file)
 
 if __name__ == '__main__':
     main()

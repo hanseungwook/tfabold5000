@@ -11,6 +11,7 @@ def compute_stats(c_values):
     c_std = np.std(c_values)
     c_skew = skew(c_values)
 
+    print(c_mean, c_std, c_skew)
     return np.array([c_mean, c_std, c_skew])
 
 # Loads R,G,B stat-based features
@@ -23,7 +24,7 @@ def load_features(data):
         r_values = np.array(img)[0::3]
         g_values = np.array(img)[1::3]
         b_values = np.array(img)[2::3]
-
+        print(r_values.shape, g_values.shape, b_values.shape)
         features[cnt][0:3] = compute_stats(r_values)
         features[cnt][3:6] = compute_stats(g_values)
         features[cnt][6:9] = compute_stats(b_values)
@@ -35,8 +36,13 @@ def load_features(data):
 def main(**kwargs):
     img_path = kwargs['img_path']
     out_path = kwargs['out_path']
-    data = load_img(img_path) # Returns list
-    images = os.listdir(img_path)
+    data = None
+    if os.path.isdir(img_path):
+        print('Loading images from directory')
+        data = load_img(img_path) # Returns list
+    else:
+        print('Loading images from npy/features file')
+        data = [img.ravel() for img in np.load(img_path)] # Loading data from npy features
     print('Images loaded.')
 
     features = load_features(data)

@@ -36,7 +36,6 @@ class ClusterVisualizer:
     def run_pca(self, pca_n=2):
         img_list = []
 
-        print('Reading images')
         """
         # Read all images
         for img in os.listdir(self.img_path):
@@ -45,7 +44,16 @@ class ClusterVisualizer:
             img_list.append(img_data.flatten())
         """
         # Read features of images
-        features = np.load(self.feature_path)
+        features = []
+        if os.path.isdir(self.feature_path):
+            print('Reading raw images')
+            for img in os.listdir(self.feature_path):
+                img_file = os.path.join(self.feature_path, img)
+                img_data = imageio.imread(img_file)
+                features.append(img_data.flatten())
+        else:
+            features = np.load(self.feature_path)
+        
         features_flat = [feature.ravel() for feature in features]
         img_list = features_flat
        
