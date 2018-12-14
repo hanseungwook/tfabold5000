@@ -29,6 +29,7 @@ python3 color_stats_extractor.py [img-path] [output-path]
 * ResNet50
 
 ## How to run kmeans clustering
+To run K-Means on the features:
 ```{shell}
 cd clustering/src/
 python3 kmeans.py [Image-Path] [File-Path-of-Features] [--pca=pca_n / optional] [--show_plot / optional]
@@ -36,6 +37,7 @@ python3 kmeans.py [Image-Path] [File-Path-of-Features] [--pca=pca_n / optional] 
 
 The above program runs kmeans clustering algorithm on the features of the images and will save the figures to `../figures` and the labels/results to `../`.
 
+To run K-means on the images themselves:
 ```{shell}
 python3 kmeans.py [Image-Path] [--pca=pca_n / optional] [--show_plot / optional]
 ```
