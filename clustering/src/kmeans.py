@@ -14,8 +14,8 @@ from cluster_visualizer import load_img
 
 # CONSTANTS
 K_START = 2
-K_END = 10
-TRIAL_NUM = 9
+K_END = 20
+TRIAL_NUM = 10
 IMAGE_PATH = '../../bold5000-dataset/scene'
 FIGURE_PATH = '../figures'
 LABEL_PATH = '../labels'
@@ -32,6 +32,7 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
+        print(features_list_np)
         result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=0).fit(features_list_np)
         labels = list(map(int, result.labels_))
         image_label_pairs = list(zip(images, labels))
@@ -93,8 +94,8 @@ def main(**kwargs):
     imagepath = kwargs['image_path']
     filepath = kwargs['features_file']
     pca_n = int(kwargs['pca'])
-    color_k = filepath.split('_')[-1][0]
-
+    #color_k = filepath.split('_')[-1][0]
+    color_k = 'phase'
     images = os.listdir(imagepath)
 
     features_list = []
@@ -134,7 +135,7 @@ def main(**kwargs):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Takes in VGG-extracted features as input')
     parser.add_argument('image_path', help='Path to image data')
-    parser.add_argument('features_file', help='File containing features', default=None)
+    parser.add_argument('features_file', nargs='?', help='File containing features', default=None)
     parser.add_argument('--show_plot', help='Flag to enable showing plot', action='store_true', default=False)
     parser.add_argument('--pca', help='Flag for setting pca on or off', default=0)
     args = parser.parse_args()
