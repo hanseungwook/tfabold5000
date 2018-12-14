@@ -43,6 +43,9 @@ class ColorHistogram(object):
             red = clahe.apply(red)
             img = np.stack((blue,green,red),axis=-1)
             self.img.append(img)
+    
+    def save_images(self, out_file):
+        np.save(out_file, self.img)
 
     def histogram(self):
         counter = 0
