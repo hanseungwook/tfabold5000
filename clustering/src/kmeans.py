@@ -34,7 +34,7 @@ def find_best_k(images, features_list_np, color_k='', show_plot=False):
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
-        print(features_list_np)
+        # print(features_list_np)
         result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=0).fit(features_list_np)
         labels = list(map(int, result.labels_))
         image_label_pairs = list(zip(images, labels))
@@ -42,10 +42,10 @@ def find_best_k(images, features_list_np, color_k='', show_plot=False):
         if not os.path.exists(LABEL_PATH):
             os.mkdir(LABEL_PATH)
         
-        labelfile = open(os.path.join(LABEL_PATH,'ck{}_labels_{}.yml'.format(color_k, k)), 'w')
+        raw_label_file = open(os.path.join(LABEL_PATH,'ck{}_labels_{}.yml'.format(color_k, k)), 'w')
         # np.savetxt(labelfile, image_label_pairs)
-        yaml.dump(image_label_pairs, labelfile, default_flow_style=False)
-        labelfile.close()
+        yaml.dump(image_label_pairs, raw_label_file, default_flow_style=False)
+        raw_label_file.close()
         
         # Generate dict: cluster_label -> [images]
         cluster_dict = defaultdict(list)
@@ -55,8 +55,8 @@ def find_best_k(images, features_list_np, color_k='', show_plot=False):
             cluster_dict[label].append(image)
         # cluster_dict['n_clusters'] = k
         
-        cluster_json = open(os.path.join(LABEL_PATH, 'cluster_to_images_{}.json'.format(k)), 'w')
-        json.dump(cluster_dict, cluster_json)
+        cluster_dict_file = open(os.path.join(LABEL_PATH, 'ck{}_cluster_to_images_{}.yml'.format(color_k, k)), 'w')
+        yaml.dump(cluster_dict, cluster_dict_file, default_flow_style=False)
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
         # Near 0 scores indicate overlapping clusters
