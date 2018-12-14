@@ -3,4 +3,3 @@ total_dataset/*
 *.npy
 /bold5000-dataset/
 *.out
-*_results/
