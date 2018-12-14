@@ -55,7 +55,7 @@ def find_best_k(images, features_list_np, color_k='', show_plot=False):
             cluster_dict[label].append(image)
         # cluster_dict['n_clusters'] = k
         
-        cluster_dict_file = open(os.path.join(LABEL_PATH, 'ck{}_cluster_to_images_{}.yml'.format(k)), 'w')
+        cluster_dict_file = open(os.path.join(LABEL_PATH, 'ck{}_cluster_to_images_{}.yml'.format(color_k, k)), 'w')
         yaml.dump(cluster_dict, cluster_dict_file, default_flow_style=False)
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
