@@ -10,17 +10,19 @@ from progressbar import ProgressBar, ETA, Bar, Timer
 import argparse
 import multiprocessing as mp
 import yaml
+import json
+from collections import defaultdict
 from cluster_visualizer import load_img
 
 # CONSTANTS
 K_START = 2
-K_END = 10
-TRIAL_NUM = 9
+K_END = 20
+TRIAL_NUM = 10
 IMAGE_PATH = '../../bold5000-dataset/scene'
 FIGURE_PATH = '../figures'
 LABEL_PATH = '../labels'
 
-def find_best_k(images, features_list_np, color_k, show_plot=False):
+def find_best_k(images, features_list_np, color_k='', show_plot=False):
     k_list = np.linspace(K_START, K_END, num=TRIAL_NUM, dtype=np.int32)
 
     silhouette_scores = []
@@ -32,17 +34,29 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
     for k in progress(k_list):
         print('Clustering for K = {}...'.format(k))
         trial += 1
+        print(features_list_np)
         result = KMeans(n_clusters=k, random_state=0, n_jobs=-1, verbose=0).fit(features_list_np)
         labels = list(map(int, result.labels_))
         image_label_pairs = list(zip(images, labels))
 
         if not os.path.exists(LABEL_PATH):
             os.mkdir(LABEL_PATH)
-        print(os.path.join(LABEL_PATH, ''))
+        '''
         labelfile = open(os.path.join(LABEL_PATH,'ck{}_labels_{}.yml'.format(color_k, k)), 'w')
-        #np.savetxt(labelfile, image_label_pairs)
+        # np.savetxt(labelfile, image_label_pairs)
         yaml.dump(image_label_pairs, labelfile, default_flow_style=False)
         labelfile.close()
+        '''
+        # Generate dict: cluster_label -> [images]
+        cluster_dict = defaultdict(list)
+        for pair in image_label_pairs:
+            image = pair[0]
+            label = pair[1]
+            cluster_dict[label].append(image)
+        # cluster_dict['n_clusters'] = k
+        
+        cluster_json = open(os.path.join(LABEL_PATH, 'cluster_to_images_{}.json'.format(k)), 'w')
+        json.dump(cluster_dict, cluster_json)
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
         # Near 0 scores indicate overlapping clusters
@@ -80,12 +94,8 @@ def find_best_k(images, features_list_np, color_k, show_plot=False):
 
     return best_k
 
-def sample_from_cluster(labelfile):
-    pass
-
 def load_feature(filepath):
     return np.load(filepath)
-    
 
 # Dimensions = (4916, 11, 11, 512)
 # Dominant color dimensions = (1000, 5, 3)
@@ -93,8 +103,8 @@ def main(**kwargs):
     imagepath = kwargs['image_path']
     filepath = kwargs['features_file']
     pca_n = int(kwargs['pca'])
-    color_k = filepath.split('_')[-1][0]
-
+    #color_k = filepath.split('_')[-1][0]
+    color_k = 'phase'
     images = os.listdir(imagepath)
 
     features_list = []
@@ -125,7 +135,7 @@ def main(**kwargs):
     print('Features loaded.')
     # print(features_list_np.shape)
 
-    print(color_k)
+    # print(color_k)
 
     best_k = find_best_k(images, features_list_np, color_k, kwargs['show_plot'])
 
@@ -134,7 +144,7 @@ def main(**kwargs):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Takes in VGG-extracted features as input')
     parser.add_argument('image_path', help='Path to image data')
-    parser.add_argument('features_file', help='File containing features', default=None)
+    parser.add_argument('features_file', nargs='?', help='File containing features', default=None)
     parser.add_argument('--show_plot', help='Flag to enable showing plot', action='store_true', default=False)
     parser.add_argument('--pca', help='Flag for setting pca on or off', default=0)
     args = parser.parse_args()
