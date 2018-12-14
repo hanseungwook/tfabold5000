@@ -54,9 +54,12 @@ def find_best_k(images, features_list_np, color_k='', show_plot=False):
             label = pair[1]
             cluster_dict[label].append(image)
         # cluster_dict['n_clusters'] = k
-        
-        cluster_dict_file = open(os.path.join(LABEL_PATH, 'ck{}_cluster_to_images_{}.yml'.format(color_k, k)), 'w')
-        yaml.dump(cluster_dict, cluster_dict_file, default_flow_style=False)
+       
+        cluster_dict_yml = open(os.path.join(LABEL_PATH, 'ck{}_cluster_to_images_{}.yml'.format(color_k, k)), 'w')
+        yaml.dump(cluster_dict, cluster_dict_yml, default_flow_style=False)
+
+        cluster_dict_json = open(os.path.join(LABEL_PATH, 'ck{}_cluster_to_images_{}.json'.format(color_k, k)), 'w')
+        json.dump(cluster_dict, cluster_dict_json)
 
         # Silhouette score = [-1, 1]; -1 = incorrect clustering, 1 = highly dense clustering (well-separated)
         # Near 0 scores indicate overlapping clusters
@@ -104,7 +107,7 @@ def main(**kwargs):
     filepath = kwargs['features_file']
     pca_n = int(kwargs['pca'])
     #color_k = filepath.split('_')[-1][0]
-    color_k = 'phase'
+    color_k = 'stats'
     images = os.listdir(imagepath)
 
     features_list = []
