@@ -1,0 +1,68 @@
+---
+title: "silhouette_plot"
+author: "Seungwook Han (sh3264)"
+date: "12/14/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Import silhouette datasets
+```{r}
+vgg16 <- read.table('../results/vgg16_results/figures/vgg16_silhouette_vs_k.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(vgg16) <- c("k", "score")
+
+vgg19 <- read.table('../results/vgg19_results/figures/vgg19_silhouette.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(vgg19) <- c("k", "score")
+
+inceptionv3 <- read.table('../results/inceptionv3_results/figures/inceptionv3_silhouette.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(inceptionv3) <- c("k", "score")
+
+scene.contrast <- read.table('../results/scene_contrast_results/figures/scene_contrast_silhouette.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(scene.contrast) <- c("k", "score")
+
+dominant.color <- read.table('../results/dominant_color_1_results/figures/dominant_color_silhouette.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(dominant.color) <- c("k", "score")
+
+hist.contrast <- read.table('../results/hist_contrast_results/figures/hist_contrast_silhouette.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(hist.contrast) <- c("k", "score")
+
+phase.amplitude <- read.table('../results/phase_amplitude_results/figures/ckstats_silhouette_vs_k.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(phase.amplitude) <- c("k", "score")
+
+phase <- read.table('../results/phase_results/figures/scene_phase_silhouette.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(phase) <- c("k", "score")
+
+resnet50 <- read.table('../results/resnet50_results/figures/ckResNet50_silhouette_vs_k.txt', header=FALSE, as.is = TRUE, colClasses="numeric", sep=" ", encoding = "UTF-8", skipNul = TRUE)
+names(resnet50) <- c("k", "score")
+
+k <- vgg16$k
+
+models <- data.frame(k, vgg16$score, vgg19$score, inceptionv3$score, scene.contrast$score, dominant.color$score, hist.contrast$score, phase.amplitude$score, phase$score, resnet50$score)
+head(models, 10)
+```
+
+# Plot
+```{r}
+models
+library(ggplot2)
+library(wesanderson)
+
+ggplot(data=models) + 
+  geom_line(mapping=aes(x=k, y=vgg16.score, color="VGG16")) + 
+  geom_line(mapping=aes(x=k, y=vgg19.score, color="VGG19")) + 
+  geom_line(mapping=aes(x=k, y=inceptionv3.score, color="InceptionV3")) + 
+  geom_line(mapping=aes(x=k, y=scene.contrast.score, color="RGB.Distribution")) +
+  geom_line(mapping=aes(x=k, y=dominant.color.score, color="Dominant.Color")) +
+  geom_line(mapping=aes(x=k, y=hist.contrast.score, color="RGB.Histogram")) +
+  geom_line(mapping=aes(x=k, y=phase.amplitude.score, color="Phase.Amplitude")) +
+  geom_line(mapping=aes(x=k, y=resnet50.score, color="ResNet50"))+ 
+  geom_line(mapping=aes(x=k, y=phase.score, color="Phase")) + labs(title="k vs. silhouette score", x="k (number of clusters)", y="Silhouette Score") + scale_colour_manual(name="Line Color",
+    values=c(VGG16="lightblue",VGG19="blue", InceptionV3="red", RGB.Distribution="green", Dominant.Color="black", RGB.Histogram="purple", Phase.Amplitude="orange", ResNet50="deeppink", Phase="cyan")) + theme(plot.title = element_text(hjust = 0.5))
+
+ggsave("k_vs_s_score.png")
+
+model$
+```
