@@ -9,7 +9,7 @@
 * Pandas
 * Seaborn
 * Matplotlib
-
+* BrainIAK
 
 
 ## How to run feature extraction using pre-trained CNN
@@ -57,3 +57,9 @@ python3 cluster_visualizer.py [feature_path] [label_path] [output-filename]
 ```
 
 The visualizer above will run PCA on the original dataset with n_components = 2 to reduce the dimensionality of the dataset to 2 and save the visualized clusters to `../figures/[output-filename]`
+
+## How to run tfa bold
+```{shell}
+cd tfa/
+python3 tfa_bold.py json_file [--K number_of_hubs_to_locate] [--n number_of_iterations] [--voxel] [--tfa]
+```
