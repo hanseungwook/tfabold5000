@@ -10,16 +10,17 @@
 * Seaborn
 * Matplotlib
 * BrainIAK
+* ggplot
 
 
 ## How to run feature extraction using pre-trained CNN
-
 
 ```{shell}
 cd clustering/src/
 python3 feature_extractor.py -m [Model-Name] -f [File-Path-of-Images]
 ```
 
+This will write the features extracted using the specified deep convolutional neural network to the current directory.
 
 ### Model-Name Options
 * VGG16
@@ -32,6 +33,8 @@ python3 feature_extractor.py -m [Model-Name] -f [File-Path-of-Images]
 ```{shell}
 python3 color_stats_extractor.py [img-path] [output-path]
 ```
+
+This will read the original images to construct the RGB distribution features of each image and write the features to the [output-path]
 
 ## How to run kmeans clustering
 To run K-Means on the features:
@@ -49,14 +52,27 @@ python3 kmeans.py [Image-Path] [--pca=pca_n / optional] [--show_plot / optional]
 
 The above command will run kmeans clustering algorithm on the images in the specified image-path above.
 
+It will create the silhouette score list and plots in ../figures (respect to the location of the program kmeans.py) and labels/clusters yaml files in ../labels. 
+
+
+
 ## How to run cluster visualizer
 
 ```{shell}
 cd clustering/src/
-python3 cluster_visualizer.py [feature_path] [label_path] [output-filename]
+python3 cluster_visualizer.py [image_path/feature_path] [label_path] [output-filename]
 ```
 
-The visualizer above will run PCA on the original dataset with n_components = 2 to reduce the dimensionality of the dataset to 2 and save the visualized clusters to `../figures/[output-filename]`
+The visualizer above will run PCA on the given image or feature dataset with n_components = 2 to reduce the dimensionality of the dataset to 2 and save the visualized clusters to `../figures/[output-filename]`
+
+## How to run make_histogram.py
+
+```{shell}
+cd clustering/src/
+python3 make_histogram.py [image_path] [output-filename]
+```
+
+This program will extract RGB Histogram features from the original images and save the features in the current directory under the [output-filename].
 
 ## How to run tfa bold
 ```{shell}

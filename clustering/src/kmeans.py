@@ -53,7 +53,7 @@ def find_best_k(images, features_list_np, color_k='', prefix, show_plot=False):
             label = pair[1]
             cluster_dict[label].append(image)
         # cluster_dict['n_clusters'] = k
-        cluster_dict_json = open(os.path.join(LABEL_PATH, 'ck{}_cluster_to_images_{}.json'.format(color_k, k)), 'w')
+        cluster_dict_json = open(os.path.join(LABEL_PATH, '{}_cluster_to_images_{}.json'.format(prefix, k)), 'w')
         json.dump(cluster_dict, cluster_dict_json)
         #cluster_dict_file = open(os.path.join(LABEL_PATH, 'VGG19_cluster_{}.yml'.format(k)), 'w')
         #yaml.dump(cluster_dict, cluster_dict_file, default_flow_style=False)
